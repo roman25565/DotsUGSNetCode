@@ -65,3 +65,8 @@ public struct SelectedFormationsId : IComponentData
 {
     public int value;
 }
+
+public struct ReadySoldiersCount : IComponentData
+{
+    public int value;
+}

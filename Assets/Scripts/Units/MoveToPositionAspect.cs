@@ -13,8 +13,8 @@ public readonly partial struct MoveToPositionAspect : IAspect
         if (_stateID.ValueRO.value != 2)
             return;
         
-        if (math.distance(_localTransform.ValueRO.Position, _targetPosition.ValueRO.value) > .5f){
-            
+        if (math.distance(_localTransform.ValueRO.Position, _targetPosition.ValueRO.value) > .1f)
+        {
             //calculate dir
             float3 direction = math.normalize(_targetPosition.ValueRW.value - _localTransform.ValueRO.Position);
             //Move

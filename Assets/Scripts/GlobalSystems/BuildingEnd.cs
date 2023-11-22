@@ -13,7 +13,7 @@ public partial class BuildingEnd : SystemBase
         foreach (var (buildingProgress,constructionTime, buildEntity)
                  in SystemAPI.Query<RefRW<ConstructionProgress>,RefRO<ConstructionTime>>().WithEntityAccess())
         {
-            if(constructionTime.ValueRO.сonstructionTime <= buildingProgress.ValueRO.progress)
+            if(constructionTime.ValueRO.value <= buildingProgress.ValueRO.progress)
             {
                 ecb.RemoveComponent<ConstructionProgress>(buildEntity);
                 

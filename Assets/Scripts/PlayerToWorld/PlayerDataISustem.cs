@@ -157,6 +157,7 @@ public partial class PlayerDataISystem : SystemBase {
                     {
                         Debug.Log("yes");   
                         SystemAPI.SetComponent(entity, new SquadLastPlayerOrder{targetEntity = targetEntity , type = -2});
+                        SystemAPI.SetComponent(entity, new ReadyForInitializeCommand { value = 1 });
                         // var targetEntityPoz = SystemAPI.GetComponent<LocalTransform>(targetEntity).Position;
                         // var targetPoz = targetEntityPoz + math.normalize(SystemAPI.GetComponent<LocalTransform>(entity).Position - targetEntityPoz) * SystemAPI.GetComponent<SquadAttackRange>(entity).attackRange;
                         

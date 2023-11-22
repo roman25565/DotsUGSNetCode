@@ -5,6 +5,7 @@ public class BuildingAuthoring : MonoBehaviour
 {
     [SerializeField]public int[] productionTimes;
     public float progressMax;
+    public float radius;
 }
 
 public class BuildingBaker : Baker<BuildingAuthoring>
@@ -13,8 +14,9 @@ public class BuildingBaker : Baker<BuildingAuthoring>
     {
         var entity = GetEntity(TransformUsageFlags.Dynamic);
 
-        AddComponent(entity, new ConstructionTime() { сonstructionTime = authoring.progressMax });
-        AddComponent(entity, new StateID());
+        AddComponent(entity, new ConstructionTime{ value = authoring.progressMax });
+        AddComponent(entity, new ProductionProgress{ production = 0,productionCoefficient = 1});
+        AddComponent(entity, new Radius{ value = authoring.radius});
         
         DynamicBuffer<ProductionTimeBuffer> dynamicBuffer = AddBuffer<ProductionTimeBuffer>(entity);
         dynamicBuffer.ResizeUninitialized(authoring.productionTimes.Length);
@@ -24,7 +26,7 @@ public class BuildingBaker : Baker<BuildingAuthoring>
         }
         
         
-        AddComponent(entity, new ProductionProgress() { production = 0,productionCoefficient = 1});
+        AddComponent(entity, new StateID());
         AddComponent(entity, new RallyPointComponent());
         AddBuffer<ProductionSequenceBuffer>(entity);
     }

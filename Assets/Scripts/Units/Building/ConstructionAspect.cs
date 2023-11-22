@@ -7,7 +7,7 @@ public readonly partial struct ConstructionAspect : IAspect
 
     public void Building(float deltaTime)
     {
-        if (_buildingProgress.ValueRW.progress >= 0 && _buildingProgress.ValueRW.progress < _constructionTime.ValueRO.сonstructionTime) 
+        if (_buildingProgress.ValueRW.progress >= 0 && _buildingProgress.ValueRW.progress < _constructionTime.ValueRO.value) 
             _buildingProgress.ValueRW.progress += deltaTime;
     }
 }

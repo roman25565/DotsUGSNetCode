@@ -28,5 +28,6 @@ public class SquadBaker : Baker<SquadAuthoring>
         AddComponent(entity, new SquadStartPosition());
         AddComponent(entity, new ReadyForInitializeCommand());
         AddComponent(entity, new SelectedFormationsId{value = 0});
+        AddComponent(entity, new ReadySoldiersCount());
     }
 }

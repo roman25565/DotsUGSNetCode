@@ -76,11 +76,6 @@ public partial struct SquadSystem : ISystem
             stateID.ValueRW.value = 1;
         }
 
-        var job = new AttackCdJob
-        {
-            deltaTime = SystemAPI.Time.DeltaTime,
-        };
-        job.Run();
 
         foreach (var (stateID, parent, warriorAttackCd)  //Attack Cd End
                  in SystemAPI.Query<RefRW<StateID>, RefRO<Parent>, RefRW<WarriorAttackCd>>())
@@ -93,41 +88,11 @@ public partial struct SquadSystem : ISystem
             }
         }
         
-        foreach (var (lastPlayerOrder, squadIndState, children, readyForInitialize, entity)  //Squad State to do Warrior
-                 in SystemAPI.Query<RefRW<SquadLastPlayerOrder>,RefRW<SquadIndependentState>, DynamicBuffer<Child>, RefRO<ReadyForInitializeCommand>>().WithEntityAccess())
+        var job = new AttackCdJob
         {
-            //NEED normal squad tools
-            if (readyForInitialize.ValueRO.value != 1)
-                continue;
-            
-            if (lastPlayerOrder.ValueRO.type < 0 && readyForInitialize.ValueRO.value == 1)
-            {
-                lastPlayerOrder.ValueRW.type *= -1;
-                var localTransform0 = SystemAPI.GetComponent<LocalTransform>(children[0].Value); 
-                float targetDegree = math.atan2(lastPlayerOrder.ValueRO.targetPoz[2] - localTransform0.Position[2] , lastPlayerOrder.ValueRO.targetPoz[0] - localTransform0.Position[0]) * 180 /
-                                     math.PI;
-                if (targetDegree < 0) 
-                    targetDegree = targetDegree + 180 + 180;
-                
-                
-                foreach (var child in children)
-                {
-
-                }
-                
-            }else if (squadIndState.ValueRO.type < 0 && squadIndState.ValueRO.type != -21)
-            {
-                squadIndState.ValueRW.type *= -1;
-                if (squadIndState.ValueRO.targetEntity == Entity.Null)
-                {
-                    foreach (var child in children)
-                    {
-                        SystemAPI.SetComponent(child.Value, new WarriorCommandId { });
-                        SystemAPI.SetComponent(child.Value, new WarriorTarget { });
-                    }
-                }
-            }
-        }
+            deltaTime = SystemAPI.Time.DeltaTime,
+        };
+        job.Run();
     }
 }
 
