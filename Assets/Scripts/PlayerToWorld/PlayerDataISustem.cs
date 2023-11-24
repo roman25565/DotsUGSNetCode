@@ -147,7 +147,6 @@ public partial class PlayerDataISystem : SystemBase {
                     if (targetEntity == Entity.Null)
                     {
                         SystemAPI.SetComponent(entity, new SquadLastPlayerOrder{ type = -1,targetPoz = _raycastHit.point});  //need normal squad tools => poz
-                        SystemAPI.SetComponent(entity, new ReadyForInitializeCommand { value = 1 });
                         // foreach (var child in SystemAPI.GetBuffer<Child>(entity))
                         // {
                         //     SystemAPI.SetComponent(child.Value, new StateID { value = 1 });

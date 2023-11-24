@@ -64,7 +64,8 @@ public partial struct ReadyForInitializeSystem : ISystem
                         if (lastPlayerOrder.ValueRO.type == -2)
                         {
                             stoppingDistance += squadAttackRange.ValueRO.attackRange;
-                            
+                            if (SystemAPI.HasComponent<Radius>(lastPlayerOrder.ValueRO.targetEntity))
+                                stoppingDistance += SystemAPI.GetComponent<Radius>(lastPlayerOrder.ValueRO.targetEntity).value;
                         }
                     }else if (lastPlayerOrder.ValueRO.targetPoz[0] != 0)
                     {

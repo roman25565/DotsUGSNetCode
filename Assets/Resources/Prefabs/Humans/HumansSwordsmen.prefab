@@ -50,6 +50,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   attackRange: 2
+  attackSpeed3: 3
+  attackDamage: 3
   startSpeed: 5
   maxSpeed: 10
   acceleration: 0

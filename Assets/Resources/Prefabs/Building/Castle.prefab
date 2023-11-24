@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1528148250563459695}
   - component: {fileID: 318237687954615963}
   - component: {fileID: 1521505268226478711}
+  - component: {fileID: -544755313634447727}
   m_Layer: 0
   m_Name: Castle
   m_TagString: Player
@@ -49,6 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   productionTimes: 030000000200000002000000
   progressMax: 3
+  radius: 1
 --- !u!114 &318237687954615963
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -75,6 +77,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   priority: 2
   skills: 1600000001000000
+--- !u!114 &-544755313634447727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 248912206068318228}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8663d9e8c79d4083b9debbf1166c6af6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  value: 10
 --- !u!1001 &4134109823171868779
 PrefabInstance:
   m_ObjectHideFlags: 0

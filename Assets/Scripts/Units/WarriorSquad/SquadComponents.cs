@@ -42,7 +42,7 @@ public struct SquadExperience : IComponentData
 }
 public struct SquadDamage : IComponentData
 {
-    public int damage;
+    public float value;
 }
 public struct SquadAttackRange : IComponentData
 {

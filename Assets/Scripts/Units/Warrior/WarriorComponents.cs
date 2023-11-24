@@ -1,10 +1,5 @@
 using Unity.Entities;
 
-
-public struct WarriorHealth : IComponentData
-{
-    public float health;
-}
 public struct WarriorTarget : IComponentData
 {
     public Entity targetEntity;

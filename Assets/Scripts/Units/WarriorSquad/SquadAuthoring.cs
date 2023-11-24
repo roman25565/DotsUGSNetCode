@@ -5,6 +5,8 @@ public class SquadAuthoring : MonoBehaviour
 {
     public int maxHealth;
     public float attackRange;
+    public float attackSpeed3;
+    public float attackDamage;
     public float startSpeed;
     public float maxSpeed;
     public float acceleration;
@@ -23,8 +25,9 @@ public class SquadBaker : Baker<SquadAuthoring>
         AddComponent(entity, new SquadIndependentState{type = -21});
         AddComponent(entity, new SquadMaxHealth{maxHealth = authoring.maxHealth});
         AddComponent(entity, new SquadExperience());
-        AddComponent(entity, new SquadDamage());
+        AddComponent(entity, new SquadDamage{value = authoring.attackDamage});
         AddComponent(entity, new SquadAttackRange{attackRange = authoring.attackRange});
+        AddComponent(entity, new SquadAttackCd{value = authoring.attackSpeed3});
         AddComponent(entity, new SquadStartPosition());
         AddComponent(entity, new ReadyForInitializeCommand());
         AddComponent(entity, new SelectedFormationsId{value = 0});

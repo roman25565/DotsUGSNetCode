@@ -9,7 +9,6 @@ public struct UnitOwnerComponent : IComponentData
 {
     public int OwnerId;
 }
-
 public struct SkillsComponent : IBufferElementData
 {
     public int skillsId;

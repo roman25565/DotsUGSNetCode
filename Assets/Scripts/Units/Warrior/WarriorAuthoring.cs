@@ -11,7 +11,7 @@ public class WarriorBaking : Baker<WarriorAuthoring>
     {
         var entity = GetEntity(TransformUsageFlags.Dynamic);
         
-        AddComponent(entity, new WarriorHealth());
+        
         AddComponent(entity, new WarriorTarget());
         AddComponent(entity, new WarriorCommandId());
         AddComponent(entity, new WarriorAttackCd());
