@@ -1,12 +1,16 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[BurstCompile]
 public partial struct SquadOrderSystem : ISystem
 {
     private Entity _targetEntity;
     private int type;
+    
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         foreach (var (lastPlayerOrder, squadIndState, children,readyForInitializeCommand, squadAttackRange) //Squad order to warrior order Initialize

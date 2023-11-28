@@ -1,10 +1,18 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[BurstCompile]
 public partial struct ReadyForInitializeSystem : ISystem
 {
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<ReadyForInitializeCommand>();
+    }
+
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         foreach (var (lastPlayerOrder, squadIndState,

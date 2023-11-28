@@ -1,8 +1,16 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 
+[BurstCompile]
 public partial struct DeathSystem : ISystem
 {
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<Health>();
+    }
+
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var ecb = new EntityCommandBuffer(Allocator.Temp);

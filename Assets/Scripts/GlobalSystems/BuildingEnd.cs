@@ -1,13 +1,20 @@
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
-using UnityEngine;
 
-public partial class BuildingEnd : SystemBase
+public partial struct BuildingEnd : ISystem
 {
-    protected override void OnUpdate()
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
+    {
+        state.RequireForUpdate<ConstructionTime>();
+    }
+
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state)
     {
         EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.TempJob);
         foreach (var (buildingProgress,constructionTime, buildEntity)
@@ -29,11 +36,11 @@ public partial class BuildingEnd : SystemBase
             }
         }
         
-        Dependency.Complete();
+        state.Dependency.Complete();
 
         // Now that the job is completed, you can enact the changes.
         // Note that Playback can only be called on the main thread.
-        ecb.Playback(EntityManager);
+        ecb.Playback(state.EntityManager);
 
         // You are responsible for disposing of any ECB you create.
         ecb.Dispose();

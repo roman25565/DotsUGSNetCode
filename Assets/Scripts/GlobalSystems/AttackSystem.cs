@@ -7,25 +7,6 @@ public partial struct AttackSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
     {
-        // foreach (var (warriorTarget, localTransform, targetPosition, parent,stateID) in SystemAPI //start Attack
-        //              .Query<RefRW<WarriorTarget>, RefRO<LocalTransform>, RefRW<TargetPosition>,Parent,RefRW<StateID>>())
-        // {
-        //     if (warriorTarget.ValueRO.targetEntity == Entity.Null)
-        //         continue;
-        //     var attackRange = SystemAPI.GetComponent<SquadAttackRange>(parent.Value).attackRange;
-        //     var targetEntityPosition = SystemAPI.GetComponent<LocalTransform>(warriorTarget.ValueRO.targetEntity).Position;
-        //     if (math.distance(localTransform.ValueRO.Position, targetEntityPosition) < attackRange)
-        //     {
-        //         stateID.ValueRW.value = 3;
-        //     }
-        //     else
-        //     {
-        //         stateID.ValueRW.value = 1;
-        //         targetPosition.ValueRW.value = localTransform.ValueRO.Position +
-        //                                        (math.normalize(targetEntityPosition - localTransform.ValueRO.Position) * attackRange);//need testing
-        //     }
-        // }
-
         foreach (var (stateID, parent, warriorAttackCd, warriorTarget, localTransform, targetPosition) //Attack
                  in SystemAPI.Query<RefRW<StateID>, RefRO<Parent>, RefRW<WarriorAttackCd>,RefRW<WarriorTarget>,RefRO<LocalTransform>,RefRW<TargetPosition>>())
         {

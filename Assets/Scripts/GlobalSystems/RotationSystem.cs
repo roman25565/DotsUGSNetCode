@@ -1,10 +1,13 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[BurstCompile]
 public partial struct RotationSystem : ISystem
 {
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         foreach (var (stateID,targetPosition,localTransform,entity)//Rotation System
@@ -45,6 +48,25 @@ public partial struct RotationSystem : ISystem
                 continue;
             }
             localTransform.ValueRW.Rotation.value = LocalTransform.FromRotation(localTransform.ValueRO.Rotation.value).RotateY(rightCof * Time.deltaTime * 8).Rotation.value;
+
+            // var productionJob = new RotationJob
+            // {
+            //     deltaTime = deltaTime,
+            //     rightCof = rightCof
+            // };
+            // state.Dependency = productionJob.ScheduleParallel(state.Dependency);
         }
     }
+    
+    // [BurstCompile]
+    // partial struct RotationJob : IJobEntity
+    // {
+    //     public int rightCof;
+    //     public float deltaTime;
+    //     
+    //     public void Execute(ref LocalTransform localTransform)
+    //     {
+    //         localTransform.Rotation.value = LocalTransform.FromRotation(localTransform.Rotation.value).RotateY(rightCof * Time.deltaTime * 8).Rotation.value;
+    //     }
+    // }
 }

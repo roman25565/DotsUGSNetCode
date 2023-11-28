@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+
 public partial struct BuildingProcess : ISystem
 {
     

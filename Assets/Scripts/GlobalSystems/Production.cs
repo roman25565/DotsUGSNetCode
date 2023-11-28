@@ -1,17 +1,34 @@
+using Unity.Burst;
 using Unity.Entities;
 using UnityEngine;
 
+[BurstCompile]
 public partial struct Production : ISystem
 {
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        foreach (var (productionSequenceBuffer, productionProgress)
-                 in SystemAPI.Query<DynamicBuffer<ProductionSequenceBuffer>,RefRW<ProductionProgress>>())
+        float deltaTime = SystemAPI.Time.DeltaTime;
+
+        var productionJob = new ProductionJob
+        {
+            deltaTime = deltaTime,
+        };
+        state.Dependency = productionJob.ScheduleParallel(state.Dependency);
+    }
+    
+    [BurstCompile]
+    partial struct ProductionJob : IJobEntity
+    {
+        // public NetworkTick tick;
+        public float deltaTime;
+        
+        public void Execute(DynamicBuffer<ProductionSequenceBuffer> productionSequenceBuffer, ref ProductionProgress productionProgress)
         {
             if (productionSequenceBuffer.Length > 0)
             {
-                productionProgress.ValueRW.production += Time.deltaTime *
-                    productionProgress.ValueRO.productionCoefficient;
+                productionProgress.production += deltaTime *
+                                                 productionProgress.productionCoefficient;
             }
         }
     }

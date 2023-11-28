@@ -1,11 +1,13 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 
+[BurstCompile]
 public partial struct SquadSystem : ISystem
 {
-
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         foreach (var (movementSpeed, entity)
