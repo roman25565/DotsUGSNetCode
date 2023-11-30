@@ -107,6 +107,18 @@ public partial class PlayerDataISystem : SystemBase {
 
         if (Input.GetMouseButtonUp(1) && !_bothMouseButtonsPressed)
         {
+            foreach (var (order, buffer)
+                     in SystemAPI.Query<RefRW<Order>,DynamicBuffer<OrderEntityBuffer>>())
+            {
+                order.ValueRW.type = 1;
+                
+                var units = new NativeList<Entity>(Allocator.Persistent);
+                foreach (var entity in SelectedEntity)
+                {
+                    buffer.Add(new OrderEntityBuffer{value = entity});
+                }
+            }
+            
             _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(
                 _ray,

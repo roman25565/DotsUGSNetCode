@@ -11,8 +11,7 @@ public partial struct ReadyForInitializeSystem : ISystem
     {
         state.RequireForUpdate<ReadyForInitializeCommand>();
     }
-
-    [BurstCompile]
+    
     public void OnUpdate(ref SystemState state)
     {
         foreach (var (lastPlayerOrder, squadIndState,

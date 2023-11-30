@@ -51,5 +51,7 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "RTSGameDots.sln"
+    "dotnet.defaultSolution": "RTSGameDots.sln",
+    "files.autoSave": "onWindowChange",
+    "editor.fontSize": 15
 }

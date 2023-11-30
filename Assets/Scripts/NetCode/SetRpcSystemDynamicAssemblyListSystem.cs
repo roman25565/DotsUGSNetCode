@@ -75,6 +75,7 @@ public partial struct GoInGameServerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var a = SystemAPI.GetSingleton<PrefabOrderComponent>();
         var worldName = state.WorldUnmanaged.Name;
 
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
@@ -88,8 +89,46 @@ public partial struct GoInGameServerSystem : ISystem
             Debug.Log($"'{worldName}' setting connection '{networkId.Value}' to in game");
 
             commandBuffer.DestroyEntity(reqEntity);
+            
+            var b = commandBuffer.Instantiate(a.value);
+            commandBuffer.AddComponent(b,new GhostOwner{NetworkId = networkId.Value});
+
         }
         commandBuffer.Playback(state.EntityManager);
+    }
+
+}
+
+[BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
+public partial class AddLocalOrder : SystemBase
+{
+
+    [BurstCompile]
+    protected override void OnCreate()
+    {
+        var builder = new EntityQueryBuilder(Allocator.Temp)
+            .WithAll<Order>();
+        RequireForUpdate(GetEntityQuery(builder));
+    }
+
+    [BurstCompile]
+    protected override void OnUpdate()
+    {
+        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
+
+        int OrderCount = EntityManager.CreateEntityQuery(typeof(Order)).CalculateEntityCount();
+
+        if (OrderCount <= EntityManager.CreateEntityQuery(typeof(OrderLocal)).CalculateEntityCount()){return;}
+        
+        foreach (var (order, ghostOwner) in SystemAPI.Query<RefRO<Order>,RefRO<GhostOwner>>())
+        {
+            var entity = commandBuffer.CreateEntity();
+            commandBuffer.AddComponent(entity,new OrderLocal());
+            commandBuffer.AddComponent(entity,new ID{value = ghostOwner.ValueRO.NetworkId});
+            commandBuffer.AddBuffer<OrderEntityBufferLocal>(entity);
+        }
+        commandBuffer.Playback(EntityManager);
     }
 
 }
