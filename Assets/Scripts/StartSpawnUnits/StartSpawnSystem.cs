@@ -10,9 +10,14 @@ using Unity.Transforms;
 public partial class StartSpawnUnits : SystemBase
 {
     private int ia;
-    
+    protected override void OnCreate()
+    {
+        RequireForUpdate<StartSpawnbuildingPrefabComponent>();
+        RequireForUpdate<StartSpawnWorkerPrefabComponent>();
+    }
+
     [BurstCompile]
-    protected override async void OnUpdate()
+    protected override void OnUpdate()
     {
         if (ia > 4)
         {

@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 
 [BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct DeathSystem : ISystem
 {
     public void OnCreate(ref SystemState state)

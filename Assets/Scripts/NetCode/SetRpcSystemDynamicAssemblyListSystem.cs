@@ -1,8 +1,8 @@
-using UnityEngine;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.NetCode;
 using Unity.Burst;
+using UnityEngine;
 
 /// <summary>
 /// This allows sending RPCs between a stand alone build and the editor for testing purposes in the event when you finish this example
@@ -26,7 +26,6 @@ public struct GoInGameRequest : IRpcCommand
 {
 }
 
-// When client has a connection with network id, go in game and tell server to also go in game
 [BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct GoInGameClientSystem : ISystem
@@ -34,6 +33,9 @@ public partial struct GoInGameClientSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        // Run only on entities with a CubeSpawner component data 
+        state.RequireForUpdate<PrefabOrderComponent>();
+
         var builder = new EntityQueryBuilder(Allocator.Temp)
             .WithAll<NetworkId>()
             .WithNone<NetworkStreamInGame>();
@@ -52,11 +54,12 @@ public partial struct GoInGameClientSystem : ISystem
             commandBuffer.AddComponent(req, new SendRpcCommandRequest { TargetConnection = entity });
         }
         commandBuffer.Playback(state.EntityManager);
+        commandBuffer.Dispose();
     }
 }
 
-// When server receives go in game request, go in game and delete request
 [BurstCompile]
+// When server receives go in game request, go in game and delete request
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
 public partial struct GoInGameServerSystem : ISystem
 {
@@ -65,6 +68,7 @@ public partial struct GoInGameServerSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
+        state.RequireForUpdate<PrefabOrderComponent>();
         var builder = new EntityQueryBuilder(Allocator.Temp)
             .WithAll<GoInGameRequest>()
             .WithAll<ReceiveRpcCommandRequest>();
@@ -75,8 +79,12 @@ public partial struct GoInGameServerSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var a = SystemAPI.GetSingleton<PrefabOrderComponent>();
-        var worldName = state.WorldUnmanaged.Name;
+        // Get the prefab to instantiate
+        var prefab = SystemAPI.GetSingleton<PrefabOrderComponent>().value;
+        
+        // Ge the name of the prefab being instantiated
+        state.EntityManager.GetName(prefab, out var prefabName);
+        var worldName = new FixedString32Bytes(state.WorldUnmanaged.Name);
 
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
         networkIdFromEntity.Update(ref state);
@@ -84,51 +92,22 @@ public partial struct GoInGameServerSystem : ISystem
         foreach (var (reqSrc, reqEntity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>>().WithAll<GoInGameRequest>().WithEntityAccess())
         {
             commandBuffer.AddComponent<NetworkStreamInGame>(reqSrc.ValueRO.SourceConnection);
+            // Get the NetworkId for the requesting client
             var networkId = networkIdFromEntity[reqSrc.ValueRO.SourceConnection];
 
-            Debug.Log($"'{worldName}' setting connection '{networkId.Value}' to in game");
+            // Log information about the connection request that includes the client's assigned NetworkId and the name of the prefab spawned.
+            UnityEngine.Debug.Log($"'{worldName}' setting connection '{networkId.Value}' to in game, spawning a Ghost '{prefabName}' for them!");
 
+            // Instantiate the prefab
+            var player = commandBuffer.Instantiate(prefab);
+            // Associate the instantiated prefab with the connected client's assigned NetworkId
+            commandBuffer.SetComponent(player, new GhostOwner { NetworkId = networkId.Value});
+
+            // Add the player to the linked entity group so it is destroyed automatically on disconnect
+            commandBuffer.AppendToBuffer(reqSrc.ValueRO.SourceConnection, new LinkedEntityGroup{Value = player});
             commandBuffer.DestroyEntity(reqEntity);
-            
-            var b = commandBuffer.Instantiate(a.value);
-            commandBuffer.AddComponent(b,new GhostOwner{NetworkId = networkId.Value});
-
         }
         commandBuffer.Playback(state.EntityManager);
+        commandBuffer.Dispose();
     }
-
-}
-
-[BurstCompile]
-[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
-public partial class AddLocalOrder : SystemBase
-{
-
-    [BurstCompile]
-    protected override void OnCreate()
-    {
-        var builder = new EntityQueryBuilder(Allocator.Temp)
-            .WithAll<Order>();
-        RequireForUpdate(GetEntityQuery(builder));
-    }
-
-    [BurstCompile]
-    protected override void OnUpdate()
-    {
-        var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
-
-        int OrderCount = EntityManager.CreateEntityQuery(typeof(Order)).CalculateEntityCount();
-
-        if (OrderCount <= EntityManager.CreateEntityQuery(typeof(OrderLocal)).CalculateEntityCount()){return;}
-        
-        foreach (var (order, ghostOwner) in SystemAPI.Query<RefRO<Order>,RefRO<GhostOwner>>())
-        {
-            var entity = commandBuffer.CreateEntity();
-            commandBuffer.AddComponent(entity,new OrderLocal());
-            commandBuffer.AddComponent(entity,new ID{value = ghostOwner.ValueRO.NetworkId});
-            commandBuffer.AddBuffer<OrderEntityBufferLocal>(entity);
-        }
-        commandBuffer.Playback(EntityManager);
-    }
-
 }

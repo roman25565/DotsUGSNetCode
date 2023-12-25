@@ -5,6 +5,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct ReadyForInitializeSystem : ISystem
 {
     public void OnCreate(ref SystemState state)

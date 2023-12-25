@@ -5,6 +5,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct SquadOrderSystem : ISystem
 {
     private Entity _targetEntity;

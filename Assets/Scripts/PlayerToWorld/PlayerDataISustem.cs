@@ -1,12 +1,13 @@
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode;
 using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.UIElements;
 
-[CreateAfter(typeof(BakedEntity))]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
+[UpdateInGroup(typeof(GhostInputSystemGroup))]
 public partial class PlayerDataISystem : SystemBase {
     
     private bool _isDraggingMouseBox = false;
@@ -27,19 +28,23 @@ public partial class PlayerDataISystem : SystemBase {
     private float3 lastraycastHit;
     private float mousePositionlate;
     private static Entity NewBuilding;
+    private int _id;
 
     private Entity _entity;
 
-    private DynamicBuffer<BuilderPrefabsComponent> builderPrefabs;
+    private DynamicBuffer<BuilderPrefabs> builderPrefabs;
     
     protected override void OnCreate()
     { 
-        myId= SystemAPI.GetSingleton<PlayerData>().playerid;
         SelectedEntity = new NativeList<Entity>(Allocator.Persistent);
+        
+        RequireForUpdate<PlayerData>();
+        RequireForUpdate<BuilderPrefabs>();
     }
 
     protected override void OnUpdate()
     {
+        myId= SystemAPI.GetSingleton<PlayerData>().playerid;
         if (IsEnabled)
         {
             Physics.Raycast(
@@ -61,11 +66,21 @@ public partial class PlayerDataISystem : SystemBase {
             }
             if (Input.GetMouseButtonUp(0) && _late)
             {
+                float3 newTargetPoz = SystemAPI.GetComponent<LocalTransform>(NewBuilding).Position;
+                var rotation = SystemAPI.GetComponent<LocalTransform>(NewBuilding).Rotation;
+                foreach (var order
+                         in SystemAPI.Query<RefRW<InputOrder>>().WithAll<GhostOwnerIsLocal>())
+                {
+                    order.ValueRW.type = _id;
+                    order.ValueRW.poz1 = newTargetPoz;
+                    order.ValueRW.poz2 = new float3(rotation.value.y,rotation.value.w,0);
+                }
+                
                 _CancelPlacedBuilding();
-                SystemAPI.SetComponent(NewBuilding, new ConstructionProgress{progress = -1,myBilder = _entity});
-                float3 NewTargetPoz = SystemAPI.GetComponent<LocalTransform>(NewBuilding).Position;
-                SystemAPI.SetComponent(_entity, new TargetPosition{value = NewTargetPoz});
-                SystemAPI.SetComponent(_entity, new ArrivalAction{value = -2});
+                EntityManager.DestroyEntity(NewBuilding);
+                // SystemAPI.SetComponent(NewBuilding, new ConstructionProgress{progress = -1,myBilder = _entity});
+                // SystemAPI.SetComponent(_entity, new TargetPosition{value = newTargetPoz});
+                // SystemAPI.SetComponent(_entity, new ArrivalAction{value = -2});
                 afterIsEnabled = true;
             }
 
@@ -75,7 +90,8 @@ public partial class PlayerDataISystem : SystemBase {
                 _CancelPlacedBuilding();
             }
         }
-        builderPrefabs = SystemAPI.GetSingletonBuffer<BuilderPrefabsComponent>();
+        builderPrefabs = SystemAPI.GetSingletonBuffer<BuilderPrefabs>();
+        
         if (Input.GetMouseButtonDown(0))
         {
             _isDraggingMouseBox = true;
@@ -107,76 +123,18 @@ public partial class PlayerDataISystem : SystemBase {
 
         if (Input.GetMouseButtonUp(1) && !_bothMouseButtonsPressed)
         {
-            foreach (var (order, buffer)
-                     in SystemAPI.Query<RefRW<Order>,DynamicBuffer<OrderEntityBuffer>>())
-            {
-                order.ValueRW.type = 1;
-                
-                var units = new NativeList<Entity>(Allocator.Persistent);
-                foreach (var entity in SelectedEntity)
-                {
-                    buffer.Add(new OrderEntityBuffer{value = entity});
-                }
-            }
-            
             _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(
                 _ray,
                 out _raycastHit,
                 1000f
             );
-            foreach (var entity in SelectedEntity)
-                if(SystemAPI.HasComponent<TargetPosition>(entity)) //is Worker
-                {
-                    SystemAPI.SetComponent(entity, new StateID{value = 4});
-                    SystemAPI.SetComponent(entity, new TargetPosition { value = _raycastHit.point });
-                    SystemAPI.SetComponent(entity, new ArrivalAction { value = -1});
-                }
-                else if(SystemAPI.HasComponent<RallyPointComponent>(entity)) //is Building
-                    SystemAPI.SetComponent(entity, new RallyPointComponent { position = _raycastHit.point });
-                
-                else if (SystemAPI.HasComponent<SquadMaxHealth>(entity)) //is Squad
-                {
-                    Entity targetEntity = Entity.Null;
-                    float b = 1;
-                    foreach (var (localTransform, entityW) in SystemAPI.Query<RefRO<LocalTransform>>()//search target entity
-                                 .WithAny<MovementSpeed,ProductionProgress>().WithEntityAccess())
-                    {
-                        if(SystemAPI.HasComponent<ArrivalAction>(entityW))
-                            if(SystemAPI.GetComponent<ArrivalAction>(entityW).value == -3)
-                                continue;
-                
-                        var ifSquadEntity = SystemAPI.HasComponent<Parent>(entityW) ? SystemAPI.GetComponent<Parent>(entityW).Value : entityW;
-                        float a = math.distance(localTransform.ValueRO.Position, _raycastHit.point);
-
-                        if (a < b)
-                        {
-                            b = a;
-                            targetEntity = ifSquadEntity;
-                        }
-                    }
-
-                    if (targetEntity == Entity.Null)
-                    {
-                        SystemAPI.SetComponent(entity, new SquadLastPlayerOrder{ type = -1,targetPoz = _raycastHit.point});  //need normal squad tools => poz
-                        // foreach (var child in SystemAPI.GetBuffer<Child>(entity))
-                        // {
-                        //     SystemAPI.SetComponent(child.Value, new StateID { value = 1 });
-                        //     SystemAPI.SetComponent(child.Value, new TargetPosition { value = _raycastHit.point });
-                        // }
-                    }else if (SystemAPI.GetComponent<UnitOwnerComponent>(targetEntity).OwnerId != myId) //ворожий айді
-                    {
-                        Debug.Log("yes");   
-                        SystemAPI.SetComponent(entity, new SquadLastPlayerOrder{targetEntity = targetEntity , type = -2});
-                        SystemAPI.SetComponent(entity, new ReadyForInitializeCommand { value = 1 });
-                        // var targetEntityPoz = SystemAPI.GetComponent<LocalTransform>(targetEntity).Position;
-                        // var targetPoz = targetEntityPoz + math.normalize(SystemAPI.GetComponent<LocalTransform>(entity).Position - targetEntityPoz) * SystemAPI.GetComponent<SquadAttackRange>(entity).attackRange;
-                        
-                    }
-                    else //дружній айді
-                    {
-                    }
-                }
+            foreach (var order
+                     in SystemAPI.Query<RefRW<InputOrder>>().WithAll<GhostOwnerIsLocal>())
+            {
+                order.ValueRW.type = 101;
+                order.ValueRW.poz1 = _raycastHit.point;
+            }
         }
     }
     private void _SelectUnitsInDraggingBox()
@@ -187,15 +145,23 @@ public partial class PlayerDataISystem : SystemBase {
             return;
         }
         DeselectAll();
+            
         Bounds selectionBounds = Utils.GetViewportBounds(
             Camera.main,
             _dragStartPosition,
-            Input.mousePosition
+            Input.mousePosition,
+            true
         );
+        foreach (var inputOrderEntityPoz in SystemAPI
+                     .Query<RefRW<InputOrderEntityPoz>>().WithAll<GhostOwnerIsLocal>())
+        {
+            inputOrderEntityPoz.ValueRW.center = selectionBounds.center;
+            inputOrderEntityPoz.ValueRW.size = selectionBounds.size;
+        }
+
         bool inBounds;
         int priority = 0;
         int gold = SystemAPI.GetSingleton<PlayerData>().gold;
-        int Count;
         foreach (var (localTransform ,entity) in SystemAPI.Query<RefRO<LocalTransform>>()
                      .WithEntityAccess().WithAny<MovementSpeed,ProductionProgress>().WithAll<SelectedTag>())
         {
@@ -203,13 +169,13 @@ public partial class PlayerDataISystem : SystemBase {
                 if (SystemAPI.GetComponent<ArrivalAction>(entity).value == -3) 
                     continue;
             inBounds = selectionBounds.Contains(
-                Camera.main.WorldToViewportPoint(localTransform.ValueRO.Position)
+                localTransform.ValueRO.Position
             );
             if (!inBounds)
                 continue;
             if(entity == Entity.Null)
                 continue;
-            // Debug.Log(localTransform.ValueRO.Position);
+            Debug.Log(localTransform.ValueRO.Position);
             var ifSquadEntity = SystemAPI.HasComponent<Parent>(entity) ? SystemAPI.GetComponent<Parent>(entity).Value : entity;
             var oUnitPriorityNum = SystemAPI.GetComponent<UnitPriorityComponent>(ifSquadEntity).priority;
             var unitOwnerId = SystemAPI.GetComponent<UnitOwnerComponent>(ifSquadEntity).OwnerId;
@@ -235,7 +201,7 @@ public partial class PlayerDataISystem : SystemBase {
             afterIsEnabled = false;
             return;
         }
-        _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        var _ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if(Physics.Raycast(
                _ray,
                out _raycastHit,
@@ -244,6 +210,13 @@ public partial class PlayerDataISystem : SystemBase {
             DeselectAll();
             _entity = Entity.Null;
             float b = 1;
+            
+            foreach (var inputOrderEntityPoz in SystemAPI
+                         .Query<RefRW<InputOrderEntityPoz>>().WithAll<GhostOwnerIsLocal>())
+            {
+                inputOrderEntityPoz.ValueRW.size = _raycastHit.point;
+                inputOrderEntityPoz.ValueRW.center = new Vector3();
+            }
             foreach (var (unit, entity) in SystemAPI.Query<RefRO<LocalTransform>>().WithAny<MovementSpeed,ProductionProgress>()
                          .WithEntityAccess())
             {
@@ -316,10 +289,11 @@ public partial class PlayerDataISystem : SystemBase {
 
     private void ButtonAddOnClick(int id)
     {
+        _id = id;
         NewBuilding = EntityManager.Instantiate(builderPrefabs[id].Value);
         SystemAPI.SetComponent(NewBuilding, new UnitOwnerComponent{OwnerId = 1});
         EntityManager.AddComponent<ConstructionProgress>(NewBuilding);
-        SystemAPI.SetComponent(NewBuilding, new ConstructionProgress{progress = -1,});
+        SystemAPI.SetComponent(NewBuilding, new ConstructionProgress{progress = -1});
         
         _late = false;
         IsEnabled = true;
@@ -328,17 +302,22 @@ public partial class PlayerDataISystem : SystemBase {
 
     private void StartProduction(int id,Entity entity)
     {
-        // SystemAPI.Set(entity, new ProductionSequenceBuffer());
-        var buffer = GetBufferLookup<ProductionSequenceBuffer>()[entity];
         var dynamicBuffer = SystemAPI.GetBuffer<SkillsComponent>(entity);
         var i = 0;
         foreach (var skillsComponent in dynamicBuffer)
         {
-            if (skillsComponent == id) 
+            if (skillsComponent.skillsId == id) 
                 break;
             i++;
         }
-        buffer.Add(i);
+        
+        foreach (var order
+                 in SystemAPI.Query<RefRW<InputOrder>>().WithAll<GhostOwnerIsLocal>())
+        {
+            order.ValueRW.type = i + 300;
+            
+            order.ValueRW.poz1.x++;
+        }
     }
 
     private void CancelButtonAddOnClick(Entity entity)
@@ -355,7 +334,7 @@ public partial class PlayerDataISystem : SystemBase {
     private void DeselectAll()
     {
         SelectedEntity.Clear(); 
-        UIManager.DestroychildgameObject();
+        UIManager.DestroyChildGameObject();
         UIManager.DestroyButtonOnSkillsPanel();
         UIManager.DestroyButtonOnUnits();
     }
@@ -383,8 +362,6 @@ public partial class PlayerDataISystem : SystemBase {
             b.onClick.AddListener(() => CancelButtonAddOnClick(entity));
             return;
         }
-
-        var i1 = 0;
         var count = dynamicBuffer.Length;
         foreach (var skillsId in dynamicBuffer)
         {

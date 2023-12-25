@@ -1,10 +1,13 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
 [BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct RotationSystem : ISystem
 {
     [BurstCompile]

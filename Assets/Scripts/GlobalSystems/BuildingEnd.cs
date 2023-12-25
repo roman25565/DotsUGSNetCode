@@ -5,6 +5,8 @@ using Unity.Mathematics;
 using Unity.Rendering;
 using Unity.Transforms;
 
+[BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct BuildingEnd : ISystem
 {
     [BurstCompile]

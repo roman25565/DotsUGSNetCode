@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5956914362092645925}
   - component: {fileID: 5828182740811842995}
   - component: {fileID: -1602892550967032688}
-  - component: {fileID: -1196833667327857338}
   - component: {fileID: -6837991689778397493}
   m_Layer: 0
   m_Name: playerOrder
@@ -69,19 +68,6 @@ MonoBehaviour:
   TrackInterpolationDelay: 0
   GhostGroup: 0
   UsePreSerialization: 0
---- !u!114 &-1196833667327857338
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7921694054168716778}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bfdaa6c06fe64fbda2b16e07a4ee0b25, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ComponentOverrides: []
 --- !u!114 &-6837991689778397493
 MonoBehaviour:
   m_ObjectHideFlags: 0

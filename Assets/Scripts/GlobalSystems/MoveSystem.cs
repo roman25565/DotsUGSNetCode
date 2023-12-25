@@ -1,9 +1,9 @@
-using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode;
 
-
-[BurstCompile]
+[UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct MoveSystem : ISystem
 {
     private float3 target;
@@ -21,7 +21,6 @@ public partial struct MoveSystem : ISystem
         state.Dependency = moveJob.ScheduleParallel(state.Dependency);
     }
     
-    [BurstCompile]
     public partial struct MoveJob : IJobEntity
     {
         public float deltaTime;

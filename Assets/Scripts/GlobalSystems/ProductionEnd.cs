@@ -5,6 +5,7 @@ using Unity.Transforms;
 using UnityEngine;
 
 [BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct ProductionEnd : ISystem
 {
     private int _myId;
@@ -18,7 +19,7 @@ public partial struct ProductionEnd : ISystem
     public void OnUpdate(ref SystemState state)
     {
         _myId = SystemAPI.GetSingleton<PlayerData>().playerid;
-        DynamicBuffer<BuilderPrefabsComponent> _builderPrefabsComponents = SystemAPI.GetSingletonBuffer<BuilderPrefabsComponent>();
+        DynamicBuffer<BuilderPrefabs> _builderPrefabsComponents = SystemAPI.GetSingletonBuffer<BuilderPrefabs>();
         foreach (var ( progress, timeBuffer, sequenceBuffer, skills, localTransform, rallyPointComponent)
                  in SystemAPI.Query<RefRW<ProductionProgress>,DynamicBuffer<ProductionTimeBuffer>,DynamicBuffer<ProductionSequenceBuffer>,DynamicBuffer<SkillsComponent>,RefRO<LocalTransform>,
                      RefRO<RallyPointComponent>>())

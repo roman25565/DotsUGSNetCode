@@ -1,8 +1,10 @@
 using Unity.Burst;
 using Unity.Entities;
-using UnityEngine;
+using Unity.NetCode;
 
+[UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
 [BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct Production : ISystem
 {
     [BurstCompile]

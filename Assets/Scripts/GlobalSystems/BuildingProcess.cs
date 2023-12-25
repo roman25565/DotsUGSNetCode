@@ -1,9 +1,13 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode;
 using Unity.Rendering;
 using Unity.Transforms;
 
-
+[UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
+[BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct BuildingProcess : ISystem
 {
     

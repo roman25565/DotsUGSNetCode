@@ -34,18 +34,18 @@ public class UIManager : MonoBehaviour
     
     public static Button createTable(SkillData skillData)
     {
-        GameObject b = GameObject.Instantiate(buttonInCanBuildPrefaba, canBuild);
+        GameObject b = Instantiate(buttonInCanBuildPrefaba, canBuild);
         b.GetComponent<Image>().sprite = skillData.sprite;
         return b.GetComponent<Button>(); 
     }
-    public static void DestroychildgameObject()
+    public static void DestroyChildGameObject()
     {
         foreach (Transform child in canBuild)
             Destroy(child.gameObject);
     }
     public static Button createButtonOnUnit(Vector3 poz,SkillData skillData)
     {
-        GameObject b = GameObject.Instantiate(buttonInCanBuildPrefaba, _small1);
+        GameObject b = Instantiate(buttonInCanBuildPrefaba, _small1);
         b.GetComponent<Image>().sprite = skillData.sprite;
         _buttonOnUnits.position = poz;
         return b.GetComponent<Button>();

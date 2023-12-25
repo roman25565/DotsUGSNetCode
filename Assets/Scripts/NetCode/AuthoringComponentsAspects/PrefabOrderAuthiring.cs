@@ -10,11 +10,9 @@ public class PrefabOrderBaker : Baker<PrefabOrderAuthiring>
 {
     public override void Bake(PrefabOrderAuthiring authoring)
     {
+        PrefabOrderComponent component = default(PrefabOrderComponent);
+        component.value = GetEntity(authoring.prefab, TransformUsageFlags.Dynamic);
         var entity = GetEntity(TransformUsageFlags.Dynamic);
-        
-        AddComponent(entity, new PrefabOrderComponent
-        {
-            value =  GetEntity(authoring.prefab ,TransformUsageFlags.Dynamic)
-        });
+        AddComponent(entity, component);
     }
 }

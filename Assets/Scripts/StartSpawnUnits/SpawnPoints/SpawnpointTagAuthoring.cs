@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 public class SpawnpointTagAuthoring : MonoBehaviour
 {
-    public Transform transform;
+    public new Transform transform;
 }
 
 public class SpawnpointsBaker : Baker<SpawnpointTagAuthoring>

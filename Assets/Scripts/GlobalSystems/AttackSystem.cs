@@ -1,8 +1,13 @@
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode;
 using Unity.Transforms;
 using UnityEngine;
 
+[UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
+[BurstCompile]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
 public partial struct AttackSystem : ISystem
 {
     public void OnUpdate(ref SystemState state)
@@ -20,6 +25,8 @@ public partial struct AttackSystem : ISystem
                 warriorAttackCd.ValueRW.value = 0f;
                 continue;
             }
+            var networkTime = SystemAPI.GetSingleton<NetworkTime>();
+            var currentTick = networkTime.ServerTick; 
             warriorAttackCd.ValueRW.value += Time.deltaTime;
             
             var stoppingDistance = SystemAPI.GetComponent<SquadAttackRange>(parent.ValueRO.Value).attackRange;
