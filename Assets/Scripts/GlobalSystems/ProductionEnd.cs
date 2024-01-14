@@ -13,12 +13,13 @@ public partial struct ProductionEnd : ISystem
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<ProductionProgress>();
+
+        _myId = 1;
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        _myId = SystemAPI.GetSingleton<PlayerData>().playerid;
         DynamicBuffer<BuilderPrefabs> _builderPrefabsComponents = SystemAPI.GetSingletonBuffer<BuilderPrefabs>();
         foreach (var ( progress, timeBuffer, sequenceBuffer, skills, localTransform, rallyPointComponent)
                  in SystemAPI.Query<RefRW<ProductionProgress>,DynamicBuffer<ProductionTimeBuffer>,DynamicBuffer<ProductionSequenceBuffer>,DynamicBuffer<SkillsComponent>,RefRO<LocalTransform>,

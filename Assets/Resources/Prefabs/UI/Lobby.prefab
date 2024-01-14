@@ -153,12 +153,12 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 677211903844220498}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+        m_TargetAssemblyTypeName: LobbyRelaySample.UI.LobbyEntryUI, Assembly-CSharp
+        m_MethodName: OnLobbyClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -176,6 +176,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36bf7ea98c9ae1f4b802df9f054885c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lobbyNameText: {fileID: 6719593233789229600}
+  lobbyCountText: {fileID: 3835840652516154262}
+  onLobbyPressed:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &3478623110978780070
 GameObject:
   m_ObjectHideFlags: 0

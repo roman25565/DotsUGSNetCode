@@ -37,20 +37,21 @@ public class CoreBooter : MonoBehaviour
         _sceneIsLoaded = true;
     }
 
-    public void LoadMenu() => StartCoroutine(_SwitchingScene("menuError", "SampleScene"));
+    public void LoadMenu() => StartCoroutine(_SwitchingScene("menu"));
     public void LoadMap(string mapReference)
     {
-        MapData d = Resources.Load<MapData>($"ScriptableObjects/Maps/{mapReference}");
-        CoreDataHandler.instance.SetMapData(d);
-        string s = d.sceneName;
-        StartCoroutine(_SwitchingScene("game", s));
+        // MapData d = Resources.Load<MapData>($"ScriptableObjects/Maps/{mapReference}");
+        // CoreDataHandler.instance.SetMapData(d);
+        // string map = d.sceneName;
+        // StartCoroutine(_SwitchingScene("game", map));
+        StartCoroutine(_SwitchingScene("game", mapReference));
     }
 
     private IEnumerator _SwitchingScene(string to, string map = "")
     {
         _sceneIsLoaded = false;
         sceneTransitioner.color = Color.clear;
-
+        
         float t = 0;
         while (t < 1f)
         {
@@ -67,6 +68,7 @@ public class CoreBooter : MonoBehaviour
 
         yield return new WaitUntil(() => _sceneIsLoaded);
 
+        
         t = 0;
         while (t < 1f)
         {
@@ -84,23 +86,23 @@ public class CoreBooter : MonoBehaviour
         AudioListener prevListener = Object.FindFirstObjectByType<AudioListener>();
         op.completed += (_) =>
         {
-            if (prevListener != null) prevListener.enabled = false;
-            SceneManager.SetActiveScene(SceneManager.GetSceneByName(map));
-            Scene s = SceneManager.GetSceneByName("MainMenu");
-            if (s != null && s.IsValid())
-                SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive).completed += (_) =>
-                {
-                    SceneManager.UnloadSceneAsync(s);
-                };
-            else
-                SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);
+        if (prevListener != null) prevListener.enabled = false;
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(map));
+        Scene s = SceneManager.GetSceneByName("MainMenu");
+        if (s != null && s.IsValid())
+            // SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive).completed += (_) =>
+            // {
+            SceneManager.UnloadSceneAsync(s);
+            // };
+        else
+            SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);
         };
         return op;
     }
 
     private AsyncOperation _LoadMenu()
     {
-        AudioListener prevListener = Object.FindFirstObjectByType<AudioListener>();
+        AudioListener prevListener = FindFirstObjectByType<AudioListener>();
         if (prevListener != null) prevListener.enabled = false;
         AsyncOperation op = SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Additive);
         op.completed += (_) =>

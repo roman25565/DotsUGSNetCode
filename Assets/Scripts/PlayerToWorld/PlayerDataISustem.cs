@@ -28,7 +28,7 @@ public partial class PlayerDataISystem : SystemBase {
     private float3 lastraycastHit;
     private float mousePositionlate;
     private static Entity NewBuilding;
-    private int _id;
+    private int _newBuildingId;
 
     private Entity _entity;
 
@@ -38,13 +38,16 @@ public partial class PlayerDataISystem : SystemBase {
     { 
         SelectedEntity = new NativeList<Entity>(Allocator.Persistent);
         
-        RequireForUpdate<PlayerData>();
         RequireForUpdate<BuilderPrefabs>();
+
     }
 
     protected override void OnUpdate()
     {
-        myId= SystemAPI.GetSingleton<PlayerData>().playerid;
+        if (myId == 0)
+        {
+            myId = GameDataManager.Instance.MyId;
+        }
         if (IsEnabled)
         {
             Physics.Raycast(
@@ -71,7 +74,7 @@ public partial class PlayerDataISystem : SystemBase {
                 foreach (var order
                          in SystemAPI.Query<RefRW<InputOrder>>().WithAll<GhostOwnerIsLocal>())
                 {
-                    order.ValueRW.type = _id;
+                    order.ValueRW.type = _newBuildingId;
                     order.ValueRW.poz1 = newTargetPoz;
                     order.ValueRW.poz2 = new float3(rotation.value.y,rotation.value.w,0);
                 }
@@ -161,10 +164,10 @@ public partial class PlayerDataISystem : SystemBase {
 
         bool inBounds;
         int priority = 0;
-        int gold = SystemAPI.GetSingleton<PlayerData>().gold;
+        Debug.Log("yes");
         foreach (var (localTransform ,entity) in SystemAPI.Query<RefRO<LocalTransform>>()
                      .WithEntityAccess().WithAny<MovementSpeed,ProductionProgress>().WithAll<SelectedTag>())
-        {
+        {Debug.Log("yes1");
             if (SystemAPI.HasComponent<ArrivalAction>(entity))
                 if (SystemAPI.GetComponent<ArrivalAction>(entity).value == -3) 
                     continue;
@@ -289,7 +292,7 @@ public partial class PlayerDataISystem : SystemBase {
 
     private void ButtonAddOnClick(int id)
     {
-        _id = id;
+        _newBuildingId = id;
         NewBuilding = EntityManager.Instantiate(builderPrefabs[id].Value);
         SystemAPI.SetComponent(NewBuilding, new UnitOwnerComponent{OwnerId = 1});
         EntityManager.AddComponent<ConstructionProgress>(NewBuilding);
