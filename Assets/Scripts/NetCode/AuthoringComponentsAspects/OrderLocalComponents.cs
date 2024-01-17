@@ -18,3 +18,9 @@ public struct OutputOrderEntityPozLocal : IComponentData
     public Vector3 center;
     public Vector3 size;
 }
+
+[GhostComponent(PrefabType=GhostPrefabType.Client)]
+public struct LocalOrderEntityBuffer : IBufferElementData
+{
+    public Entity value;
+}

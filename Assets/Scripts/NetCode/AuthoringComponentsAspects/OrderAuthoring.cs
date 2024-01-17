@@ -26,5 +26,7 @@ public class OrderBaker : Baker<OrderAuthoring>
         
         
         AddBuffer<LocalOrderEntityBuffer>(entity);
+        
+        AddComponent<MyIdComponent>(entity);
     }
 }

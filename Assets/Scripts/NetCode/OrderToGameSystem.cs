@@ -14,8 +14,7 @@ public partial struct OrderToGameSystem : ISystem
     private DynamicBuffer<BuilderPrefabs> builderPrefabs;
     public void OnCreate(ref SystemState state)
     {
-        
-        state.RequireForUpdate<GhostOwner>();
+        state.RequireForUpdate<MyIdComponent>();
         state.RequireForUpdate<InputOrder>();
         state.RequireForUpdate<InputOrderEntityPoz>();
     }
@@ -26,8 +25,8 @@ public partial struct OrderToGameSystem : ISystem
         builderPrefabs = SystemAPI.GetSingletonBuffer<BuilderPrefabs>();
         var ecb = new EntityCommandBuffer(Allocator.Temp);
         
-        foreach (var (order, orderLocal, localOrderEntityBuffer,ghostOwner) in SystemAPI
-                     .Query<RefRO<OutputOrder>, RefRW<OrderLocal>,DynamicBuffer<LocalOrderEntityBuffer>,RefRO<GhostOwner>>())
+        foreach (var (order, orderLocal, localOrderEntityBuffer, myIdComponent) in SystemAPI
+                     .Query<RefRO<OutputOrder>, RefRW<OrderLocal>,DynamicBuffer<LocalOrderEntityBuffer>,RefRO<MyIdComponent>>())
         {
             if (order.ValueRO.type == orderLocal.ValueRO.type &&
                 order.ValueRO.poz1.Equals(orderLocal.ValueRO.poz1) &&
@@ -58,7 +57,7 @@ public partial struct OrderToGameSystem : ISystem
                 
                 var NewBuilding = ecb.Instantiate(builderPrefabs[orderLocal.ValueRO.type].Value);
                 
-                ecb.SetComponent(NewBuilding, new UnitOwnerComponent{OwnerId = ghostOwner.ValueRO.NetworkId});
+                ecb.SetComponent(NewBuilding, new UnitOwnerComponent{OwnerId = myIdComponent.ValueRO.value});
                 ecb.AddComponent<ConstructionProgress>(NewBuilding);
                 ecb.SetComponent(NewBuilding, new ConstructionProgress{progress = -1, myBilder = priorityEntity});
                 ecb.SetComponent(NewBuilding, new LocalTransform{Position = orderLocal.ValueRO.poz1,Rotation = new quaternion(0,orderLocal.ValueRO.poz2.x,0,orderLocal.ValueRO.poz2.y),Scale = 1});
@@ -104,7 +103,7 @@ public partial struct OrderToGameSystem : ISystem
 
                         }
                         else if (SystemAPI.GetComponent<UnitOwnerComponent>(targetEntity).OwnerId !=
-                                 ghostOwner.ValueRO.NetworkId) //ворожий айді
+                                 myIdComponent.ValueRO.value) //ворожий айді
                         {
                             Debug.Log("yes");
                             SystemAPI.SetComponent(entity,

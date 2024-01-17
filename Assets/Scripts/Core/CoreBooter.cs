@@ -11,6 +11,8 @@ public class CoreBooter : MonoBehaviour
 
     private bool _sceneIsLoaded;
 
+    // public ConnectionManager connectionManager;
+
     private void Awake()
     {
         if (instance == null)
@@ -82,20 +84,23 @@ public class CoreBooter : MonoBehaviour
 
     private AsyncOperation _LoadMap(string map)
     {
+        // AsyncOperation op = connectionManager.Conenction(map, CoreDataHandler.instance.IsHost);
         AsyncOperation op = SceneManager.LoadSceneAsync(map, LoadSceneMode.Additive);
+        
+        
         AudioListener prevListener = Object.FindFirstObjectByType<AudioListener>();
         op.completed += (_) =>
         {
-        if (prevListener != null) prevListener.enabled = false;
-        SceneManager.SetActiveScene(SceneManager.GetSceneByName(map));
-        Scene s = SceneManager.GetSceneByName("MainMenu");
-        if (s != null && s.IsValid())
-            // SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive).completed += (_) =>
-            // {
-            SceneManager.UnloadSceneAsync(s);
+            if (prevListener != null) prevListener.enabled = false;
+            SceneManager.SetActiveScene(SceneManager.GetSceneByName(map));
+            Scene mainMenuScene = SceneManager.GetSceneByName("MainMenu");
+            if (mainMenuScene.IsValid())
+                // SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive).completed += (_) =>
+                // {
+                SceneManager.UnloadSceneAsync(mainMenuScene);
             // };
-        else
-            SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);
+            else
+                SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);
         };
         return op;
     }
@@ -103,22 +108,23 @@ public class CoreBooter : MonoBehaviour
     private AsyncOperation _LoadMenu()
     {
         AudioListener prevListener = FindFirstObjectByType<AudioListener>();
-        if (prevListener != null) prevListener.enabled = false;
-        AsyncOperation op = SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Additive);
-        op.completed += (_) =>
-        {
-            Scene s = SceneManager.GetSceneByName("GameScene");
-            if (s != null && s.IsValid())
-                SceneManager.UnloadSceneAsync(s);
-            if (CoreDataHandler.instance.Scene != null)
-            {
-                s = SceneManager.GetSceneByName(CoreDataHandler.instance.Scene);
-                if (s != null && s.IsValid())
-                    SceneManager.UnloadSceneAsync(s);
-            }
-
-            SceneManager.SetActiveScene(SceneManager.GetSceneByName("MainMenu"));
-        };
+        if (prevListener) prevListener.enabled = false;
+        Debug.Log("_LoadMenu()");
+        AsyncOperation op = SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);//MainMenu
+        // op.completed += (_) =>
+        // {
+        //     Scene s = SceneManager.GetSceneByName("GameScene");
+        //     if (s.IsValid())
+        //         SceneManager.UnloadSceneAsync(s);
+        //     if (CoreDataHandler.instance.Scene != null)
+        //     {
+        //         s = SceneManager.GetSceneByName(CoreDataHandler.instance.Scene);
+        //         if (s.IsValid())
+        //             SceneManager.UnloadSceneAsync(s);
+        //     }
+        //
+        //     SceneManager.SetActiveScene(SceneManager.GetSceneByName("MainMenu"));
+        // };//need
         return op;
     }
 }

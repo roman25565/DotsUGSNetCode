@@ -6,8 +6,8 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
-[UpdateInGroup(typeof(GhostInputSystemGroup))]
+// [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
+// [UpdateInGroup(typeof(GhostInputSystemGroup))]
 public partial class PlayerDataISystem : SystemBase {
     
     private bool _isDraggingMouseBox = false;
@@ -20,7 +20,7 @@ public partial class PlayerDataISystem : SystemBase {
     RaycastHit _raycastHit;
 
     NativeList<Entity> SelectedEntity;
-    public int myId;
+    public int myId = -1;
     private bool IsEnabled = false;
     private bool _late;
     private bool MouseButtonDown = false;
@@ -44,9 +44,9 @@ public partial class PlayerDataISystem : SystemBase {
 
     protected override void OnUpdate()
     {
-        if (myId == 0)
+        if (myId == -1)
         {
-            myId = GameDataManager.Instance.MyId;
+            myId = MyId.Value;
         }
         if (IsEnabled)
         {
@@ -155,6 +155,8 @@ public partial class PlayerDataISystem : SystemBase {
             Input.mousePosition,
             true
         );
+        Debug.Log("center "+ selectionBounds.center);
+        Debug.Log("size " + selectionBounds.size);
         foreach (var inputOrderEntityPoz in SystemAPI
                      .Query<RefRW<InputOrderEntityPoz>>().WithAll<GhostOwnerIsLocal>())
         {
@@ -164,10 +166,9 @@ public partial class PlayerDataISystem : SystemBase {
 
         bool inBounds;
         int priority = 0;
-        Debug.Log("yes");
         foreach (var (localTransform ,entity) in SystemAPI.Query<RefRO<LocalTransform>>()
                      .WithEntityAccess().WithAny<MovementSpeed,ProductionProgress>().WithAll<SelectedTag>())
-        {Debug.Log("yes1");
+        {
             if (SystemAPI.HasComponent<ArrivalAction>(entity))
                 if (SystemAPI.GetComponent<ArrivalAction>(entity).value == -3) 
                     continue;

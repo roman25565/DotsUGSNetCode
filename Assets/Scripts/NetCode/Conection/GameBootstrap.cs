@@ -12,17 +12,6 @@ public class GameBootstrap : ClientServerBootstrap
     {
         //Use 0 to manually connect
         AutoConnectPort = 0;
-
-        if (AutoConnectPort != 0)
-        {            
-            return base.Initialize(defaultWorldName);
-        }
-        else
-        {
-            AutoConnectPort = 0;
-            CreateLocalWorld(defaultWorldName);
-            return true; ;
-        }
+        return false;
     }
-
 }

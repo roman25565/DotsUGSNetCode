@@ -16,8 +16,8 @@ public partial class StartSpawnUnits : SystemBase
     
     protected override void OnCreate()
     {
-        // RequireForUpdate<StartSpawnbuildingPrefabComponent>();
-        // RequireForUpdate<StartSpawnWorkerPrefabComponent>();
+        RequireForUpdate<StartSpawnbuildingPrefabComponent>();
+        RequireForUpdate<StartSpawnWorkerPrefabComponent>();
         
         SystemAPI.TryGetSingleton<StartSpawnbuildingPrefabComponent>(out this.buildingPrefab);
         SystemAPI.TryGetSingleton<StartSpawnWorkerPrefabComponent>(out this.workerPrefab);
@@ -26,6 +26,9 @@ public partial class StartSpawnUnits : SystemBase
     [BurstCompile]
     protected override void OnUpdate()
     {
+        if (spawn_complete)
+            return;
+        
         if (buildingPrefab.prefab == Entity.Null || workerPrefab.prefab == Entity.Null)
         {
             SystemAPI.TryGetSingleton<StartSpawnbuildingPrefabComponent>(out this.buildingPrefab);
@@ -49,23 +52,23 @@ public partial class StartSpawnUnits : SystemBase
             ia++;
         };//need
         
-        if (spawn_complete)
-            return;
         
         var i = 0;
         foreach (var spawnointTag in SystemAPI.Query<SpawnpointTag>())
         {
             var result = GameDataManager.Instance.SpawnPointHasPlayer(i);
+            Debug.Log("result: " + result);
             bool spawnPointNotHasPlayer = result == null;
             i++;
             if (spawnPointNotHasPlayer)
                 continue;
-            var id = result ?? 0;
+            var myId = result ?? 0;
 
+            Debug.Log("myId: " + myId);
             var SpawnPoint = spawnointTag.localTransform;
             var projectileEntity = EntityManager.Instantiate(buildingPrefab.prefab);
 
-            SystemAPI.SetComponent(projectileEntity, new UnitOwnerComponent { OwnerId = id });
+            SystemAPI.SetComponent(projectileEntity, new UnitOwnerComponent { OwnerId = myId });
             SystemAPI.SetComponent(projectileEntity, new LocalTransform()
             {
                 Position = new float3(SpawnPoint),
@@ -78,7 +81,7 @@ public partial class StartSpawnUnits : SystemBase
             float3 pointInFront = localTransform.Position + forwardDirection;
             SystemAPI.SetComponent(projectileEntity, new RallyPointComponent { position = pointInFront });
             var newWorker = EntityManager.Instantiate(workerPrefab.prefab);
-            SystemAPI.SetComponent(newWorker, new UnitOwnerComponent { OwnerId = id });
+            SystemAPI.SetComponent(newWorker, new UnitOwnerComponent { OwnerId = myId });
             SystemAPI.SetComponent(newWorker, new LocalTransform()
             {
                 Position = new float3(
@@ -96,7 +99,7 @@ public partial class StartSpawnUnits : SystemBase
                     z: SpawnPoint.z + 3f)
             });
             var newWorker2 = EntityManager.Instantiate(workerPrefab.prefab);
-            SystemAPI.SetComponent(newWorker2, new UnitOwnerComponent { OwnerId = id });
+            SystemAPI.SetComponent(newWorker2, new UnitOwnerComponent { OwnerId = myId });
             SystemAPI.SetComponent(newWorker2, new LocalTransform()
             {
                 Position = new float3(

@@ -352,6 +352,7 @@ namespace LobbyRelaySample
                 {
                     foreach (var lobbyPlayerChanges in changes.PlayerData.Value)
                     {
+                        Debug.Log(lobbyPlayerChanges.Value.PlayerIndex);
                         var playerIndex = lobbyPlayerChanges.Key;
                         var localPlayer = localLobby.GetLocalPlayer(playerIndex);
                         if (localPlayer == null)

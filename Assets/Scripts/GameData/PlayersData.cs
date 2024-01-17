@@ -2,8 +2,6 @@ using System.Collections.Generic;
 
 public class PlayersData
 {
-    private Dictionary<string, int> asd;
-    
     private IReadOnlyDictionary<int, PlayerDataStatic> _playersStatics;
     private IReadOnlyDictionary<int, PlayerDataDynamic> _playerDynamics;
     private IReadOnlyDictionary<int, PlayerDataStats> _playerStats;

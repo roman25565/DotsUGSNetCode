@@ -163,7 +163,6 @@ namespace LobbyRelaySample
 
         public void SetLocalUserStatus(PlayerStatus status)
         {
-            Debug.Log("SetLocalUserStatus " + status);
             m_LocalUser.UserStatus.Value = status;
             Debug.Log("m_LocalUser.UserStatus.Value " + m_LocalUser.UserStatus.Value);
             SendLocalUserData();
@@ -268,7 +267,8 @@ namespace LobbyRelaySample
             // p.SaveToFile($"Games/{CoreDataHandler.instance.GameUID}/PlayerParameters", true);
             CoreDataHandler.instance.myID = AuthenticationService.Instance.PlayerId;
             CoreDataHandler.instance.SetLocalPlayers(LocalLobby.LocalPlayers);
-
+            CoreDataHandler.instance.SetIsHost(m_LocalUser.IsHost.Value);
+            
             CoreBooter.instance.LoadMap("GameScene");
         }
 
@@ -468,10 +468,10 @@ namespace LobbyRelaySample
             return canQuit;
         }
 
-        void OnDestroy()
+        void OnDestroy()//need
         {
-            ForceLeaveAttempt();
-            LobbyManager.Dispose();
+            // ForceLeaveAttempt();
+            // LobbyManager.Dispose();
         }
 
         void ForceLeaveAttempt()

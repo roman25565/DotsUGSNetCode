@@ -12,7 +12,7 @@ public partial struct EntityBufferToLocal : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<GhostOwner>();
+        state.RequireForUpdate<MyIdComponent>();
         state.RequireForUpdate<LocalOrderEntityBuffer>();
         state.RequireForUpdate<OutputOrderEntityPozLocal>();
     }
@@ -20,9 +20,8 @@ public partial struct EntityBufferToLocal : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-
-        foreach (var (localOrderEntityBuffer, outputPoz, outputPozLocal, ghostOwner) in SystemAPI
-                     .Query<DynamicBuffer<LocalOrderEntityBuffer>, RefRW<OutputOrderEntityPoz>, RefRW<OutputOrderEntityPozLocal>, RefRO<GhostOwner>>())
+        foreach (var (localOrderEntityBuffer, outputPoz, outputPozLocal, myId) in SystemAPI
+                     .Query<DynamicBuffer<LocalOrderEntityBuffer>, RefRW<OutputOrderEntityPoz>, RefRW<OutputOrderEntityPozLocal>, RefRO<MyIdComponent>>())
         {
             if (outputPoz.ValueRO.size.Equals(outputPozLocal.ValueRO.size) &&
                 outputPoz.ValueRO.center.Equals(outputPozLocal.ValueRO.center))
@@ -53,12 +52,10 @@ public partial struct EntityBufferToLocal : ISystem
                     }
                 }
                 if(_entity != Entity.Null)
-                    if (SystemAPI.GetComponent<UnitOwnerComponent>(_entity).OwnerId == ghostOwner.ValueRO.NetworkId)
+                    if (SystemAPI.GetComponent<UnitOwnerComponent>(_entity).OwnerId == myId.ValueRO.value)
                     {
                         localOrderEntityBuffer.Add(new LocalOrderEntityBuffer { value = _entity });
                     }
-                
-                
                 
                 continue;
             }
@@ -71,6 +68,7 @@ public partial struct EntityBufferToLocal : ISystem
                 if (SystemAPI.HasComponent<ArrivalAction>(entity))
                     if (SystemAPI.GetComponent<ArrivalAction>(entity).value == -3)
                         continue;
+
                 inBounds = selectionBounds.Contains(
                     localTransform.ValueRO.Position
                 );
@@ -78,16 +76,16 @@ public partial struct EntityBufferToLocal : ISystem
                     continue;
                 if (entity == Entity.Null)
                     continue;
+                
                 var ifSquadEntity = SystemAPI.HasComponent<Parent>(entity)
                     ? SystemAPI.GetComponent<Parent>(entity).Value
                     : entity;
                 var unitOwnerId = SystemAPI.GetComponent<UnitOwnerComponent>(ifSquadEntity).OwnerId;
 
-                if (unitOwnerId != ghostOwner.ValueRO.NetworkId)
+                if (unitOwnerId != myId.ValueRO.value)
                     continue;
                 
                 localOrderEntityBuffer.Add(new LocalOrderEntityBuffer { value = ifSquadEntity });
-                
                 
 
                 // need more

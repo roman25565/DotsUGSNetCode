@@ -35,9 +35,7 @@ public struct OutputOrderEntityPoz : IComponentData
     [GhostField] public Vector3 size;
 }
 
-[GhostComponent(PrefabType=GhostPrefabType.Client)]
-public struct LocalOrderEntityBuffer : IBufferElementData
+public struct MyIdComponent : IComponentData
 {
-    public Entity value;
+    [GhostField] public int value;
 }
-

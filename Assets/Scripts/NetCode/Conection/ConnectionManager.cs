@@ -1,76 +1,119 @@
+using System.Collections;
 using Unity.Entities;
 using Unity.NetCode;
 using Unity.Networking.Transport;
+using Unity.Scenes;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class ConnectionManager : MonoBehaviour
 {
 
-    public string Address;
-    public ushort Port;
-    public string Scene;
-   
+    [SerializeField] private string _listenIP = "127.0.0.1";
+    [SerializeField] private string _connectIP = "127.0.0.1";
+    [SerializeField] private ushort _port = 7979;
 
-    // Start is called before the first frame update
-    private void Awake()
+    public static World serverWorld = null;
+    public static World clientWorld = null;
+
+    public enum Role
     {
-        if (GameDataManager.Instance.ImHost)
-        {
-            StartHost();
-        }else
-        {
-            StartClient();
-        }
+        ServerClient = 0, Server = 1, Client = 2
     }
 
-    private void StartHost()
-    {       
-        var server = ClientServerBootstrap.CreateServerWorld("ServerWorld");
-        var client = ClientServerBootstrap.CreateClientWorld("ClientWorld");
-                
-        DestroyLocalWorld();
-        World.DefaultGameObjectInjectionWorld ??= server;
+    private static Role _role = Role.ServerClient;
 
+    private void Start()
+    {
+        if (Application.isEditor)
         {
-            using var drvQuery = server.EntityManager.CreateEntityQuery(ComponentType.ReadWrite<NetworkStreamDriver>());
-            drvQuery.GetSingletonRW<NetworkStreamDriver>().ValueRW.Listen(ClientServerBootstrap.DefaultListenAddress.WithPort(Port));
-
-            //var listenRequest = server.EntityManager.CreateEntity(typeof(NetworkStreamRequestListen));
-            //server.EntityManager.SetComponentData(listenRequest, new NetworkStreamRequestListen { Endpoint = ClientServerBootstrap.DefaultListenAddress.WithPort(Port) });
+            _role = Role.ServerClient;
         }
-       
+        else if (Application.platform == RuntimePlatform.WindowsServer || Application.platform == RuntimePlatform.LinuxServer || Application.platform == RuntimePlatform.OSXServer)
         {
-            using var drvQuery = client.EntityManager.CreateEntityQuery(ComponentType.ReadWrite<NetworkStreamDriver>());
-            drvQuery.GetSingletonRW<NetworkStreamDriver>().ValueRW.Connect(client.EntityManager, ClientServerBootstrap.DefaultConnectAddress.WithPort(Port));
-
-            //var connectRequest = client.EntityManager.CreateEntity(typeof(NetworkStreamRequestConnect));
-            //client.EntityManager.SetComponentData(connectRequest, new NetworkStreamRequestConnect { Endpoint = ClientServerBootstrap.DefaultConnectAddress.WithPort(Port) });
+            _role = Role.Server;
         }
-
-        
+        else
+        {
+            _role = Role.Client;
+        }
+        StartCoroutine(Connect());
     }
 
-    private void StartClient()
+    private IEnumerator Connect()
     {
-        var client = ClientServerBootstrap.CreateClientWorld("ClientWorld");
+        if (_role == Role.ServerClient || _role == Role.Server)
+        {
+            serverWorld = ClientServerBootstrap.CreateServerWorld("ServerWorld");
+        }
 
-        DestroyLocalWorld();
-        World.DefaultGameObjectInjectionWorld ??= client;
-        
-        using var drvQuery = client.EntityManager.CreateEntityQuery(ComponentType.ReadWrite<NetworkStreamDriver>());
-        drvQuery.GetSingletonRW<NetworkStreamDriver>().ValueRW.Connect(client.EntityManager, NetworkEndpoint.Parse(Address,Port));
-    }
+        if (_role == Role.ServerClient || _role == Role.Client)
+        {
+            clientWorld = ClientServerBootstrap.CreateClientWorld("ClientWorld");
+        }
 
-    private void DestroyLocalWorld()
-    {
         foreach (var world in World.All)
         {
-            if(world.Flags == WorldFlags.Game)
+            if (world.Flags == WorldFlags.Game)
             {
                 world.Dispose();
                 break;
             }
         }
+
+        if (serverWorld != null)
+        {
+            World.DefaultGameObjectInjectionWorld = serverWorld;
+        }
+        else if (clientWorld != null)
+        {
+            World.DefaultGameObjectInjectionWorld = clientWorld;
+        }
+
+        SubScene[] subScenes = FindObjectsByType<SubScene>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        if (serverWorld != null)
+        {
+            while (!serverWorld.IsCreated)
+            {
+                yield return null;
+            }
+            if (subScenes != null)
+            {
+                for (int i = 0; i < subScenes.Length; i++)
+                {
+                    SceneSystem.LoadParameters loadParameters = new SceneSystem.LoadParameters() { Flags = SceneLoadFlags.BlockOnStreamIn };
+                    var sceneEntity = SceneSystem.LoadSceneAsync(serverWorld.Unmanaged, new Unity.Entities.Hash128(subScenes[i].SceneGUID.Value));
+                    // while (!SceneSystem.IsSceneLoaded(serverWorld.Unmanaged, sceneEntity))
+                    // {
+                    //     serverWorld.Update();
+                    // }
+                }
+            }
+            using var query = serverWorld.EntityManager.CreateEntityQuery(ComponentType.ReadWrite<NetworkStreamDriver>());
+            query.GetSingletonRW<NetworkStreamDriver>().ValueRW.Listen(NetworkEndpoint.Parse(_listenIP, _port));
+        }
+
+        if (clientWorld != null)
+        {
+            while (!clientWorld.IsCreated)
+            {
+                yield return null;
+            }
+            if (subScenes != null)
+            {
+                for (int i = 0; i < subScenes.Length; i++)
+                {
+                    SceneSystem.LoadParameters loadParameters = new SceneSystem.LoadParameters() { Flags = SceneLoadFlags.BlockOnStreamIn };
+                    var sceneEntity = SceneSystem.LoadSceneAsync(clientWorld.Unmanaged, new Unity.Entities.Hash128(subScenes[i].SceneGUID.Value));
+                    // while (!SceneSystem.IsSceneLoaded(clientWorld.Unmanaged, sceneEntity))
+                    // {
+                    //     clientWorld.Update();
+                    // }
+                }
+            }
+            using var query = clientWorld.EntityManager.CreateEntityQuery(ComponentType.ReadWrite<NetworkStreamDriver>());
+            query.GetSingletonRW<NetworkStreamDriver>().ValueRW.Connect(clientWorld.EntityManager, NetworkEndpoint.Parse(_connectIP, _port));
+        }
     }
+
 }

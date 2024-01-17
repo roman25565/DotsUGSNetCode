@@ -8,14 +8,10 @@ public class GameDataManager : MonoBehaviour
     private PlayersData _playersData;
     private EnemiesAndFriends _enemiesAndFriends;
     
-    private int _myId;
     private bool _imHost;
     private IReadOnlyDictionary<int, PlayerDataStatic> _playersStatics;
     
-    public int MyId
-    {
-        get => _myId;
-    }
+   
 
     public bool ImHost
     {
@@ -25,16 +21,17 @@ public class GameDataManager : MonoBehaviour
     #region Init
     private void Awake()
     {
+        Debug.Log("Awake");
         if (Instance != null && Instance != this)
         {
             Destroy(this);
             return;
         }
-        
-        _myId = SearchID();
+
+        MyId.SetMyID(SearchID());
         _imHost = SearchImHost();
         _playersData = CreatePlayersData();
-        _enemiesAndFriends = createEnemiesAndFriends();
+        // _enemiesAndFriends = CreateEnemiesAndFriends();
         
         Instance = this;
     }
@@ -49,7 +46,7 @@ public class GameDataManager : MonoBehaviour
 #if UNITY_EDITOR
         if (CoreDataHandler.instance == null)
         {
-            localPlayersStatics.Add(1,new PlayerDataStatic(id: "TestId",color: Color.blue, spawnPoint: 1,team: 0));
+            localPlayersStatics.Add(1,new PlayerDataStatic(id: ".",color: Color.blue, spawnPoint: 1,team: 0));
             return new PlayersData(
                 playersStatics: localPlayersStatics,
                 playerDynamics: localPlayerDynamics,
@@ -88,14 +85,14 @@ public class GameDataManager : MonoBehaviour
     private bool SearchImHost()
     {
 #if UNITY_EDITOR
-        if (CoreDataHandler.instance == null)
+        if (CoreDataHandler.instance == null || CoreDataHandler.instance.localPlayers.Count == 0)
             return true;
 #endif
-        return CoreDataHandler.instance.localPlayers[_myId].IsHost.Value;
+        return CoreDataHandler.instance.localPlayers[MyId.Value].IsHost.Value;
     }
-    private EnemiesAndFriends createEnemiesAndFriends()
+    private EnemiesAndFriends CreateEnemiesAndFriends()
     {
-        var myTeam = _playersData.GiveMyTeam(_myId);
+        var myTeam = _playersData.GiveMyTeam(MyId.Value);
         var result = _playersData.isMyFriends(myTeam);
         return new EnemiesAndFriends(result);
     }

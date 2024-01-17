@@ -10,12 +10,16 @@ public class CoreDataHandler : MonoBehaviour
     private string _gameUID;
     private MapData _mapData;
     
+    
     public List<LocalPlayer> localPlayers = new ();
-
+    private bool _isHost;
+    
+    
     public string myID;
     public string GameUID => _gameUID;
     public string Scene => _mapData != null ? _mapData.sceneName : null;
     public float MapSize => _mapData.mapSize;
+    public bool IsHost => _isHost;
 
     private void Awake()
     {
@@ -41,5 +45,9 @@ public class CoreDataHandler : MonoBehaviour
     public void SetLocalPlayers(List<LocalPlayer> localPlayers)
     { 
         this.localPlayers = localPlayers;
+    }
+    public void SetIsHost(bool isHost)
+    { 
+        _isHost = isHost;
     }
 }

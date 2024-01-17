@@ -66,19 +66,17 @@ public static class Utils
 
     public static Bounds GetViewportBounds(Camera camera, Vector3 screenPosition1, Vector3 screenPosition2, bool asd)
     {
-        RaycastHit hit0;
-        RaycastHit hit1;
         var ray0 = camera.ScreenPointToRay(screenPosition1);
         Physics.Raycast(
             ray0,
-            out hit0);
+            out var hit0);
         
         var ray1 = camera.ScreenPointToRay(screenPosition2);
         Physics.Raycast(
             ray1,
-            out hit1);
+            out var hit1);
         
-        Vector3 center = Vector3.Lerp(hit0.point, hit1.point, 0.5f);
+        var center = Vector3.Lerp(hit0.point, hit1.point, 0.5f);
         var size = (center - hit0.point) * 2;
         size.y += 10;
         size.x = Mathf.Abs(size.x);
