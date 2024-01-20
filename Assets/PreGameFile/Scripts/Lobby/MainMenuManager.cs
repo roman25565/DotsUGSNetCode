@@ -265,8 +265,18 @@ namespace LobbyRelaySample
             //     .ToArray();
             // p.myPlayerId = 0;
             // p.SaveToFile($"Games/{CoreDataHandler.instance.GameUID}/PlayerParameters", true);
-            CoreDataHandler.instance.myID = AuthenticationService.Instance.PlayerId;
+            
             CoreDataHandler.instance.SetLocalPlayers(LocalLobby.LocalPlayers);
+            Debug.Log("SetMyId(m_LocalUser.Index.Value): " + m_LocalUser.Index.Value);
+            var index = 0;
+            for (int i = 0; i < m_LocalLobby.LocalPlayers.Count; i++)
+            {
+                if (m_LocalLobby.LocalPlayers[i].ID.Value == m_LocalUser.ID.Value)
+                {
+                    index = i;
+                }
+            }
+            CoreDataHandler.instance.SetMyId(index);
             CoreDataHandler.instance.SetIsHost(m_LocalUser.IsHost.Value);
             
             CoreBooter.instance.LoadMap("GameScene");

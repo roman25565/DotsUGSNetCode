@@ -28,9 +28,13 @@ public class ConnectionManager : MonoBehaviour
         {
             _role = Role.ServerClient;
         }
-        else if (Application.platform == RuntimePlatform.WindowsServer || Application.platform == RuntimePlatform.LinuxServer || Application.platform == RuntimePlatform.OSXServer)
+        if (Application.platform == RuntimePlatform.WindowsServer || Application.platform == RuntimePlatform.LinuxServer || Application.platform == RuntimePlatform.OSXServer)
         {
             _role = Role.Server;
+        }
+        else if (GameDataManager.Instance.ImHost)
+        {
+            _role = Role.ServerClient;
         }
         else
         {

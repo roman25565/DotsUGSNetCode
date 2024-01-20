@@ -2,14 +2,13 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.NetCode;
+using UnityEngine;
 
-[BurstCompile]
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
 public partial struct GoInGameServerSystem : ISystem
 {
     private ComponentLookup<NetworkId> networkIdFromEntity;
     
-    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         var builder = new EntityQueryBuilder(Allocator.Temp);
@@ -17,13 +16,17 @@ public partial struct GoInGameServerSystem : ISystem
         state.RequireForUpdate(state.GetEntityQuery(builder));
         networkIdFromEntity = state.GetComponentLookup<NetworkId>(true);
         state.RequireForUpdate<PrefabOrderComponent>();
+        
+        state.RequireForUpdate<StartSpawnbuildingPrefabComponent>();
+        state.RequireForUpdate<StartSpawnWorkerPrefabComponent>();
     }
 
     public void OnUpdate(ref SystemState state)
     {
         networkIdFromEntity.Update(ref state);
         var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
-        foreach (var (request, command, entity) in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<GoInGameCommand>>().WithEntityAccess())
+        foreach (var (request, command, entity)
+                 in SystemAPI.Query<RefRO<ReceiveRpcCommandRequest>, RefRO<GoInGameCommand>>().WithEntityAccess())
         {
             commandBuffer.AddComponent<NetworkStreamInGame>(request.ValueRO.SourceConnection);
             commandBuffer.DestroyEntity(entity);
@@ -34,8 +37,9 @@ public partial struct GoInGameServerSystem : ISystem
             Entity player = commandBuffer.Instantiate(prefabs.value);
             commandBuffer.SetComponent(player, new MyIdComponent
             {
-                value = MyId.Value
+                value = command.ValueRO.id
             });
+            Debug.Log("CoreDataHandler.instance.MyId: " + CoreDataHandler.instance.MyId);
 
             var networkId = networkIdFromEntity[request.ValueRO.SourceConnection];
             commandBuffer.SetComponent(player, new GhostOwner()

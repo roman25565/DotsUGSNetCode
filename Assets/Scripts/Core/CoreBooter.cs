@@ -110,7 +110,7 @@ public class CoreBooter : MonoBehaviour
         AudioListener prevListener = FindFirstObjectByType<AudioListener>();
         if (prevListener) prevListener.enabled = false;
         Debug.Log("_LoadMenu()");
-        AsyncOperation op = SceneManager.LoadSceneAsync("GameScene", LoadSceneMode.Additive);//MainMenu
+        AsyncOperation op = SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Additive);//MainMenuЬ
         // op.completed += (_) =>
         // {
         //     Scene s = SceneManager.GetSceneByName("GameScene");

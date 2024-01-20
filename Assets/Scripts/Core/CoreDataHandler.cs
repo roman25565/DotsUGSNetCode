@@ -15,7 +15,12 @@ public class CoreDataHandler : MonoBehaviour
     private bool _isHost;
     
     
-    public string myID;
+    private int _myID;
+
+    public int MyId
+    {
+        get => _myID;
+    }
     public string GameUID => _gameUID;
     public string Scene => _mapData != null ? _mapData.sceneName : null;
     public float MapSize => _mapData.mapSize;
@@ -49,5 +54,10 @@ public class CoreDataHandler : MonoBehaviour
     public void SetIsHost(bool isHost)
     { 
         _isHost = isHost;
+    }
+    public void SetMyId(int myId)
+    { 
+        _myID = myId;
+        Debug.Log("SetMyId :" + myId);
     }
 }

@@ -57,14 +57,12 @@ public partial class StartSpawnUnits : SystemBase
         foreach (var spawnointTag in SystemAPI.Query<SpawnpointTag>())
         {
             var result = GameDataManager.Instance.SpawnPointHasPlayer(i);
-            Debug.Log("result: " + result);
             bool spawnPointNotHasPlayer = result == null;
             i++;
             if (spawnPointNotHasPlayer)
                 continue;
             var myId = result ?? 0;
 
-            Debug.Log("myId: " + myId);
             var SpawnPoint = spawnointTag.localTransform;
             var projectileEntity = EntityManager.Instantiate(buildingPrefab.prefab);
 

@@ -46,7 +46,7 @@ public partial class PlayerDataISystem : SystemBase {
     {
         if (myId == -1)
         {
-            myId = MyId.Value;
+            myId = GameDataManager.MyId;
         }
         if (IsEnabled)
         {
@@ -392,4 +392,3 @@ public partial class PlayerDataISystem : SystemBase {
         }
     }
 }
-

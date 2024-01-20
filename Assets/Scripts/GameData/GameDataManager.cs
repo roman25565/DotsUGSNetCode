@@ -11,7 +11,11 @@ public class GameDataManager : MonoBehaviour
     private bool _imHost;
     private IReadOnlyDictionary<int, PlayerDataStatic> _playersStatics;
     
-   
+    private static int _myId;
+    public static int MyId
+    {
+        get => _myId;
+    }
 
     public bool ImHost
     {
@@ -28,7 +32,7 @@ public class GameDataManager : MonoBehaviour
             return;
         }
 
-        MyId.SetMyID(SearchID());
+        _myId = SearchID();
         _imHost = SearchImHost();
         _playersData = CreatePlayersData();
         // _enemiesAndFriends = CreateEnemiesAndFriends();
@@ -77,22 +81,19 @@ public class GameDataManager : MonoBehaviour
         if (CoreDataHandler.instance == null)
             return 1;
 #endif
-        int id = 0;
-        try { id = int.Parse(CoreDataHandler.instance.myID); }catch (FormatException e) { Console.WriteLine(e.Message); }
-        return id;
+        return CoreDataHandler.instance.MyId;
     }
-
     private bool SearchImHost()
     {
 #if UNITY_EDITOR
         if (CoreDataHandler.instance == null || CoreDataHandler.instance.localPlayers.Count == 0)
             return true;
 #endif
-        return CoreDataHandler.instance.localPlayers[MyId.Value].IsHost.Value;
+        return CoreDataHandler.instance.IsHost;
     }
     private EnemiesAndFriends CreateEnemiesAndFriends()
     {
-        var myTeam = _playersData.GiveMyTeam(MyId.Value);
+        var myTeam = _playersData.GiveMyTeam(MyId);
         var result = _playersData.isMyFriends(myTeam);
         return new EnemiesAndFriends(result);
     }
