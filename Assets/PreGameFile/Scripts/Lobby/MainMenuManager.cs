@@ -7,6 +7,7 @@ using Unity.Services.Lobbies;
 using Unity.Services.Samples;
 using UnityEngine;
 using LobbyRelaySample.lobby;
+using LobbyRelaySample.ngo;
 
 #if UNITY_EDITOR
 using ParrelSync;
@@ -41,6 +42,8 @@ namespace LobbyRelaySample
         public GameState LocalGameState { get; private set; }
         public LobbyManager LobbyManager { get; private set; }
         
+        ConnectionRelay m_connectionRelay = null;
+        
         [SerializeField]
         Countdown m_countdown;
 
@@ -55,6 +58,8 @@ namespace LobbyRelaySample
 
         private void Start()
         {
+            m_connectionRelay = FindObjectOfType<ConnectionRelay>();
+            Debug.Log("m_connectionRelay" + (m_connectionRelay != null));
             EventManager.TriggerEvent("LoadedScene");
         }
 
@@ -247,9 +252,9 @@ namespace LobbyRelaySample
         {
             m_LocalUser.UserStatus.Value = PlayerStatus.InGame;
             m_LocalLobby.LocalLobbyState.Value = LobbyState.InGame;
-            // m_setupInGame.StartNetworkedGame(m_LocalLobby, m_LocalUser);
+            m_connectionRelay.StartNetworkedGame(m_LocalLobby, m_LocalUser);
 
-            StartNewGame();
+            // StartNewGame();
         }
         
         public void StartNewGame()
@@ -267,7 +272,6 @@ namespace LobbyRelaySample
             // p.SaveToFile($"Games/{CoreDataHandler.instance.GameUID}/PlayerParameters", true);
             
             CoreDataHandler.instance.SetLocalPlayers(LocalLobby.LocalPlayers);
-            Debug.Log("SetMyId(m_LocalUser.Index.Value): " + m_LocalUser.Index.Value);
             var index = 0;
             for (int i = 0; i < m_LocalLobby.LocalPlayers.Count; i++)
             {

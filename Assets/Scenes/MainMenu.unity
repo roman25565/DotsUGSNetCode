@@ -5761,6 +5761,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99e79f502a394ab6b6a320d968a89f3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_connectionRelay: {fileID: 0}
   m_countdown: {fileID: 1285313292}
   m_vivoxUserHandlers: []
 --- !u!1 &1234570005
