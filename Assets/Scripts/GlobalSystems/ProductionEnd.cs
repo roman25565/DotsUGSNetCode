@@ -47,7 +47,6 @@ public partial struct ProductionEnd : ISystem
             }
             else
             {
-                Debug.Log("WTF");
                 SystemAPI.SetComponent(NewUnit, new LocalTransform
                 {
                     Position = new float3(localTransform.ValueRO.Position),

@@ -8,6 +8,7 @@ using Unity.Services.Samples;
 using UnityEngine;
 using LobbyRelaySample.lobby;
 using LobbyRelaySample.ngo;
+using Samples.HelloNetcode;
 
 #if UNITY_EDITOR
 using ParrelSync;
@@ -42,23 +43,40 @@ namespace LobbyRelaySample
         public GameState LocalGameState { get; private set; }
         public LobbyManager LobbyManager { get; private set; }
         
-        ConnectionRelay m_connectionRelay = null;
+        private ConnectionRelay m_connectionRelay = null;
         
         [SerializeField]
-        Countdown m_countdown;
+        private Countdown m_countdown;
 
-        LocalPlayer m_LocalUser;
-        LocalLobby m_LocalLobby;
+        private LocalPlayer m_LocalUser;
+        private LocalLobby m_LocalLobby;
 
-        vivox.VivoxSetup m_VivoxSetup = new vivox.VivoxSetup();
+        private vivox.VivoxSetup m_VivoxSetup = new vivox.VivoxSetup();
         [SerializeField]
-        List<vivox.VivoxUserHandler> m_vivoxUserHandlers;
+        private List<vivox.VivoxUserHandler> m_vivoxUserHandlers;
 
         static MainMenuManager m_GameManagerInstance;
 
+        private RelayFrontend relayFrontend;
+
+        public int maney{ get; set; }
+
+        public int GetManey()
+        {
+            return maney;
+        }
+        private void setManey(int value)
+        {
+            maney = value;
+        }
+        
         private void Start()
         {
+            var a = GetManey();
+            setManey(10);
+            
             m_connectionRelay = FindObjectOfType<ConnectionRelay>();
+            relayFrontend = FindObjectOfType<RelayFrontend>();
             Debug.Log("m_connectionRelay" + (m_connectionRelay != null));
             EventManager.TriggerEvent("LoadedScene");
         }
@@ -250,14 +268,14 @@ namespace LobbyRelaySample
 
         public void FinishedCountDown()
         {
+            Debug.Log("FinishedCountDown()");
             m_LocalUser.UserStatus.Value = PlayerStatus.InGame;
             m_LocalLobby.LocalLobbyState.Value = LobbyState.InGame;
-            m_connectionRelay.StartNetworkedGame(m_LocalLobby, m_LocalUser);
 
-            // StartNewGame();
+            StartNewGame(m_LocalLobby, m_LocalUser);
         }
         
-        public void StartNewGame()
+        public async void StartNewGame(LocalLobby localLobby,LocalPlayer localPlayer)
         {
             // CoreDataHandler.instance.SetGameUID(_selectedMap);
 
@@ -271,19 +289,22 @@ namespace LobbyRelaySample
             // p.myPlayerId = 0;
             // p.SaveToFile($"Games/{CoreDataHandler.instance.GameUID}/PlayerParameters", true);
             
-            CoreDataHandler.instance.SetLocalPlayers(LocalLobby.LocalPlayers);
+            CoreDataHandler.instance.SetLocalPlayers(localLobby.LocalPlayers);
             var index = 0;
-            for (int i = 0; i < m_LocalLobby.LocalPlayers.Count; i++)
+            for (int i = 0; i < localLobby.LocalPlayers.Count; i++)
             {
-                if (m_LocalLobby.LocalPlayers[i].ID.Value == m_LocalUser.ID.Value)
+                if (localLobby.LocalPlayers[i].ID.Value == localPlayer.ID.Value)
                 {
                     index = i;
                 }
             }
             CoreDataHandler.instance.SetMyId(index);
-            CoreDataHandler.instance.SetIsHost(m_LocalUser.IsHost.Value);
+            CoreDataHandler.instance.SetIsHost(localPlayer.IsHost.Value);
             
-            CoreBooter.instance.LoadMap("GameScene");
+            // await m_connectionRelay.StartNetworkedGame(m_LocalLobby, m_LocalUser);
+            
+            relayFrontend.StartNetworkedGame(m_LocalLobby, m_LocalUser);
+            // CoreBooter.instance.LoadMap("GameScene");
         }
 
         public void BeginGame()

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6af149d32981446999331b4cd56edfac, type: 3}
+  m_Name: PlayerInfoItemSettings
+  m_EditorClassIdentifier: 
+  PlayerName: 
+  GameMode: 0
+  <RayOffsetFromCamera>k__BackingField: 0
+  <MinDistanceBetweenCameraRayAndPlayer>k__BackingField: 0
+  <MinLifeBar>k__BackingField: 0
+  <MinOffset>k__BackingField:
+    x: 0
+    y: 0
+    z: 0
+  <Offset>k__BackingField:
+    x: 0
+    y: 0
+    z: 0
+  m_MinMaxScale:
+    x: 0.25
+    y: 1
+  m_MinMaxDistance:
+    x: 100
+    y: 250

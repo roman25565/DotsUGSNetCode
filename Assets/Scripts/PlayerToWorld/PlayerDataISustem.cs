@@ -6,7 +6,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 using UnityEngine;
 
-// [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
+[WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
 // [UpdateInGroup(typeof(GhostInputSystemGroup))]
 public partial class PlayerDataISystem : SystemBase {
     

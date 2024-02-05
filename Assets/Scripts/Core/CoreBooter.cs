@@ -29,11 +29,6 @@ public class CoreBooter : MonoBehaviour
         EventManager.AddListener("LoadedScene", _OnLoadedScene);
     }
 
-    private void Start()
-    {
-        LoadMenu();
-    }
-
     private void _OnLoadedScene()
     {
         _sceneIsLoaded = true;
@@ -109,7 +104,6 @@ public class CoreBooter : MonoBehaviour
     {
         AudioListener prevListener = FindFirstObjectByType<AudioListener>();
         if (prevListener) prevListener.enabled = false;
-        Debug.Log("_LoadMenu()");
         AsyncOperation op = SceneManager.LoadSceneAsync("MainMenu", LoadSceneMode.Additive);//MainMenuЬ
         // op.completed += (_) =>
         // {

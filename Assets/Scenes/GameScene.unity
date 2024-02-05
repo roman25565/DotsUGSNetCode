@@ -123,50 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &135223445
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 135223447}
-  - component: {fileID: 135223446}
-  m_Layer: 0
-  m_Name: EcsTools
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &135223446
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 135223445}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc94ba1a16ca44d793aefa0aa7fd11d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &135223447
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 135223445}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 515.4427, y: 422.3862, z: -1074.5521}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &243571776
 GameObject:
   m_ObjectHideFlags: 0
@@ -489,7 +445,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &648359382
 MonoBehaviour:
@@ -748,7 +704,7 @@ GameObject:
   m_TagString: Respawn
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!64 &826520700
 MeshCollider:
@@ -1385,7 +1341,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &1312044896
 MonoBehaviour:
@@ -1470,7 +1426,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &1586975124
 MonoBehaviour:
@@ -1481,12 +1437,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1586975123}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24cbaf71f6eb4f14a77661e3a986b5c5, type: 3}
+  m_Script: {fileID: 11500000, guid: 4a60275e48c14980af8eeaed0d091c06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _listenIP: 127.0.0.1
   _connectIP: 127.0.0.1
   _port: 7979
+  IsEnabled: 0
 --- !u!4 &1586975125
 Transform:
   m_ObjectHideFlags: 0
@@ -2004,5 +1960,4 @@ SceneRoots:
   - {fileID: 344003012}
   - {fileID: 993768717}
   - {fileID: 1586975125}
-  - {fileID: 135223447}
   - {fileID: 826520703}

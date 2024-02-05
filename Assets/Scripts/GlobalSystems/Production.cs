@@ -25,7 +25,7 @@ public partial struct Production : ISystem
         // public NetworkTick tick;
         public float deltaTime;
         
-        public void Execute(DynamicBuffer<ProductionSequenceBuffer> productionSequenceBuffer, ref ProductionProgress productionProgress)
+        private void Execute(DynamicBuffer<ProductionSequenceBuffer> productionSequenceBuffer, ref ProductionProgress productionProgress)
         {
             if (productionSequenceBuffer.Length > 0)
             {
