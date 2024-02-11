@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using LobbyRelaySample;
+using MainMenu;
 using UnityEngine;
 
 public class CoreDataHandler : MonoBehaviour
